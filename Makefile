@@ -1,7 +1,7 @@
-
 OSNAME = CustomOS
 
 GNUEFI = boot/stage1/uefi/gnu-efi
+BIOSBOOT = boot/stage1/bios
 S2 = boot/stage2/
 OVMFDIR = OVMFbin
 
@@ -11,6 +11,7 @@ BOOTEFI := $(GNUEFI)/x86_64/bootloader/main.efi
 
 bootloader:
 	cd $(GNUEFI) && make bootloader && cd .. && cd .. && cd .. && cd ..
+	cd $(BIOSBOOT) && make && cd .. && cd .. && cd .. && cd ..
 	cd $(S2) && make stage2 && cd .. && cd .. 
 
 setup:
@@ -20,7 +21,9 @@ setup:
 
 buildimg: bootloader
 	dd if=/dev/zero of=$(BUILDDIR)/$(OSNAME).img bs=512 count=93750
-	mformat -i $(BUILDDIR)/$(OSNAME).img ::
+	mkfs.fat -F 12 -n "NBOS" $(BUILDDIR)/$(OSNAME).img
+	dd if=boot/stage1/bios/boot.img of=$(BUILDDIR)/$(OSNAME).img conv=notrunc
+	
 	mmd -i $(BUILDDIR)/$(OSNAME).img ::/EFI
 	mmd -i $(BUILDDIR)/$(OSNAME).img ::/EFI/BOOT
 	mcopy -i $(BUILDDIR)/$(OSNAME).img $(BOOTEFI) ::/EFI/BOOT

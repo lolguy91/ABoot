@@ -1,3 +1,3 @@
-int _start(){
+char _start(){
     return 123;
 }
