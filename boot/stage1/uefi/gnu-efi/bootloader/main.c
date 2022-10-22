@@ -3,6 +3,8 @@
 #include <elf.h>
 #include <stddef.h>
 
+CHAR16* config;
+
 //typedef unsigned long long size_t;
 
 EFI_FILE* loadFile(EFI_FILE* Dir,CHAR16* path,EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable){
@@ -35,36 +37,62 @@ int memcmp(const void* aptr,const void* bptr,size_t n){
 	return 0;
 	
 }
-
-EFI_STATUS efi_main (EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable) {
-
-	InitializeLib(ImageHandle,SystemTable);
-	EFI_FILE* stage2;
-	if((stage2 = loadFile(NULL,L"stage2.bin",ImageHandle,SystemTable)) == NULL){
-		Print(L"Stage2 Not found\r\n");
+void loadConfig(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable){
+	EFI_FILE* configfile;
+	if((configfile = loadFile(NULL,L"aboot.cfg",ImageHandle,SystemTable)) == NULL){
+		Print(L"config Not found\r\n");
 	}
 	else{
-		Print(L"Stage2 loaded\r\n");
+		Print(L"config loaded\r\n");
 	}
-	UINTN fileinfosize;
+	UINTN fileinfosize = sizeof(EFI_FILE_INFO);
 	EFI_FILE_INFO* fileinfo;
-	stage2->GetInfo(stage2,&gEfiFileInfoGuid,&fileinfosize,NULL);
 	SystemTable->BootServices->AllocatePool(EfiLoaderData,fileinfosize,(void**)&fileinfo);
-	stage2->GetInfo(stage2,&gEfiFileInfoGuid,&fileinfosize,(void**)&fileinfo);
-	
-	UINTN binarysize = 255;
+	configfile->GetInfo(configfile,&gEfiFileInfoGuid,&fileinfosize,(void**)&fileinfo);
 	char* binary;
-	//Print(L"%d", fileinfo->FileSize);
-	SystemTable->BootServices->AllocatePool(EfiLoaderData,binarysize,(void**)&binary);
+	SystemTable->BootServices->AllocatePool(EfiLoaderData,fileinfo->FileSize,(void**)&binary);
 	
-	stage2->Read(stage2,&binarysize,(void*)binary);
+	configfile->Read(configfile,&fileinfo->FileSize,(void*)binary);
+
+	SystemTable->BootServices->AllocatePool(EfiLoaderData,fileinfo->FileSize * 2,(void**)&config);
+	
+	for (size_t i = 0; i < fileinfo->FileSize; i++)
+	{
+		config[i] = (CHAR16)binary[i];
+	}
+}
+
+EFI_STATUS efi_main (EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable) {
+	InitializeLib(ImageHandle,SystemTable);
+	loadConfig(ImageHandle,SystemTable);
+	Print(config);
+	
+	//EFI_FILE* kernel;
+	//if((kernel = loadFile(NULL,L"kernel.bin",ImageHandle,SystemTable)) == NULL){
+	//	Print(L"kernel Not found\r\n");
+	//}
+	//else{
+	//	Print(L"kernel loaded\r\n");
+	//}
+	//UINTN fileinfosize;
+	//EFI_FILE_INFO* fileinfo;
+	//kernel->GetInfo(kernel,&gEfiFileInfoGuid,&fileinfosize,NULL);
+	//SystemTable->BootServices->AllocatePool(EfiLoaderData,fileinfosize,(void**)&fileinfo);
+	//kernel->GetInfo(kernel,&gEfiFileInfoGuid,&fileinfosize,(void**)&fileinfo);
+	//
+	//UINTN binarysize = fileinfo->FileSize;
+	//char* binary;
+	////Print(L"%d", fileinfo->FileSize);
+	//SystemTable->BootServices->AllocatePool(EfiLoaderData,binarysize,(void**)&binary);
+	//
+	//kernel->Read(kernel,&binarysize,(void*)binary);
 
 
 
 
-	int (*stage2start)() = ((__attribute__((sysv_abi)) int (*)()) binary);
-	UINTN errorcode = stage2start();
-	Print(L"%d", errorcode);
+	//int (*kernelstart)() = ((__attribute__((sysv_abi)) int (*)()) binary);
+	//UINTN errorcode = kernelstart();
+	//Print(L"%d", errorcode);
 	while(1){}
 
 	return EFI_SUCCESS; // Exit the UEFI application(never)
