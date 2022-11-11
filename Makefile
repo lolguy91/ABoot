@@ -1,8 +1,8 @@
 OSNAME = CustomOS
 
-GNUEFI = boot/stage1/uefi/gnu-efi
-BIOSBOOT = boot/stage1/bios
-S2 = boot/stage2/
+GNUEFI = boot/uefi
+BIOSBOOT = boot/bios/stage1
+S2 = boot/bios/stage2# a fucking mess
 OVMFDIR = OVMFbin
 
 
@@ -28,7 +28,7 @@ buildimg: bootloader
 	mmd -i $(BUILDDIR)/$(OSNAME).img ::/EFI/BOOT
 	mcopy -i $(BUILDDIR)/$(OSNAME).img $(BOOTEFI) ::/EFI/BOOT
 	mcopy -i $(BUILDDIR)/$(OSNAME).img startup.nsh ::
-	mcopy -i $(BUILDDIR)/$(OSNAME).img boot/stage2/bin/stage2.bin ::
+	mcopy -i $(BUILDDIR)/$(OSNAME).img $(S2)/bin/stage2.bin ::
 	mcopy -i $(BUILDDIR)/$(OSNAME).img iso/boot/aboot.cfg ::
 
 run: buildimg
