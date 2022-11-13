@@ -13,6 +13,7 @@ bootloader:
 	cd $(GNUEFI) && make bootloader && cd .. && cd .. && cd .. && cd ..
 	cd $(BIOSBOOT) && make && cd .. && cd .. && cd .. && cd ..
 	cd $(S2) && make stage2 && cd .. && cd .. 
+	cd sample_kernel && make && cd .. && cd .. 
 
 setup:
 	@mkdir $(BUILDDIR)
@@ -28,7 +29,8 @@ buildimg: bootloader
 	mmd -i $(BUILDDIR)/$(OSNAME).img ::/EFI/BOOT
 	mcopy -i $(BUILDDIR)/$(OSNAME).img $(BOOTEFI) ::/EFI/BOOT
 	mcopy -i $(BUILDDIR)/$(OSNAME).img startup.nsh ::
-	mcopy -i $(BUILDDIR)/$(OSNAME).img $(S2)/bin/stage2.bin ::
+	mcopy -i $(BUILDDIR)/$(OSNAME).img sample_kernel/bin/kernel.bin ::
+	mcopy -i $(BUILDDIR)/$(OSNAME).img ${S2}/bin/stage2.bin ::
 	mcopy -i $(BUILDDIR)/$(OSNAME).img iso/boot/aboot.cfg ::
 
 run: buildimg

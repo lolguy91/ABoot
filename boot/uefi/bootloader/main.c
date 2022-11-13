@@ -91,12 +91,9 @@ EFI_STATUS efi_main (EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable) {
 
 	int (*kernelstart)() = ((__attribute__((sysv_abi)) int (*)()) kernelbinary);
 	UINTN errorcode = kernelstart();
-	Print(L"%d", errorcode);
+	Print(L"Kernel Exited with code %d.", errorcode);
 	while(1){}
 
-	return EFI_SUCCESS; // Exit the UEFI application(never)
+	return EFI_SUCCESS; 
 }
-//gonna
-//give
-//you
-//up
+

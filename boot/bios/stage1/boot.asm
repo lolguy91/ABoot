@@ -193,12 +193,9 @@ start:
 
 
 
-    ;jmp STAGE2_LOAD_SEGMENT:STAGE2_LOAD_OFFSET
+    jmp STAGE2_LOAD_SEGMENT:STAGE2_LOAD_OFFSET
 
-    mov ah, 0x0E        ; call bios interrupt
-    mov al,'A'
-    mov bh, 0           ; set page number to 0
-    int 0x10
+
 
     cli
     hli

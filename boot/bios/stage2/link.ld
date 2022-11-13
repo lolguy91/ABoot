@@ -1,5 +1,5 @@
 OUTPUT_FORMAT(binary)
-
+STARTUP(bin/main.o)
 SECTIONS{
     .entry : ALIGN(0x1000){
         *(.entry)
