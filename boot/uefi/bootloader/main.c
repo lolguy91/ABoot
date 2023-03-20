@@ -87,7 +87,7 @@ EFI_STATUS efi_main (EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE *SystemTable) {
 	InitializeLib(ImageHandle,SystemTable);
 	loadConfig(ImageHandle,SystemTable);
 	Print(L"Config:\n'\n");Print(config);Print(L"\n'\n");
-	loadKernel(L"stage2.bin",ImageHandle,SystemTable);
+	loadKernel(L"kernel.bin",ImageHandle,SystemTable);
 
 	int (*kernelstart)() = ((__attribute__((sysv_abi)) int (*)()) kernelbinary);
 	UINTN errorcode = kernelstart();
