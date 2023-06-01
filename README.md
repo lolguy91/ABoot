@@ -1,2 +1,2 @@
 # ABoot
-the Blindsos Bootloader
+the Bootloader
